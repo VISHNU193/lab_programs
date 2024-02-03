@@ -2,8 +2,6 @@
 #include<stdlib.h>
 #include<stdbool.h>
 
-#define compare(x,y) ((x)>(y)?1:((x)<(y)?-1:0))
-
 typedef struct PolyNode {
     int exp;
     int coef;
@@ -20,7 +18,8 @@ PolyNode* createNode(int exponent, int coefficient) {
 
 void addPolyNode(PolyNode **p, int exponent, int coefficient) {
     PolyNode* newNode = createNode(exponent, coefficient);
-    if (*p == NULL) {
+    if (*p == NULL|| newNode->exp > (*p)->exp) {
+        newNode->next=*p;
         *p = newNode;
     } 
     else {
@@ -48,50 +47,46 @@ PolyNode* readPoly(PolyNode **p){
 }
 
 PolyNode * addPoly(PolyNode **p1, PolyNode **p2){
+    
     PolyNode **sum = malloc(sizeof(PolyNode));
     *sum = NULL;
-    PolyNode *p1_temp = malloc(sizeof(PolyNode));
-    PolyNode *p2_temp = malloc(sizeof(PolyNode));
+    PolyNode *p1_temp ,*p2_temp;
     p1_temp = *p1;
     p2_temp = *p2;
+    
     while (p1_temp!=NULL && p2_temp!=NULL)
     {
         
-        // if (p1_temp->exp > p2_temp->exp){
-        //     addPolyNode(sum, p1_temp->exp, p1_temp->coef);
-        //     p1_temp = p1_temp->next;
-        // }
-        // else if (p1_temp->exp < p2_temp->exp){
-        //     addPolyNode(sum, p2_temp->exp, p2_temp->coef);
-        //     p2_temp = p2_temp->next;
-        // }
-        // else if (p1_temp->exp == p2_temp->exp){
+        if (p1_temp->exp > p2_temp->exp){
+            addPolyNode(sum, p1_temp->exp, p1_temp->coef);
+            p1_temp = p1_temp->next;
             
-        //     addPolyNode(sum, p1_temp->exp, p1_temp->coef+p2_temp->coef);
-        //     p1_temp = p1_temp->next;
-        //     p2_temp = p2_temp->next;
-        // }
-        switch (compare(p1_temp->exp, p2_temp->exp))
-        {
-        case 1:addPolyNode(sum, p1_temp->exp, p1_temp->coef);
-              p1_temp = p1_temp->next;
-            break;
-        case -1:
+        }
+        else if (p1_temp->exp < p2_temp->exp){
             addPolyNode(sum, p2_temp->exp, p2_temp->coef);
             p2_temp = p2_temp->next;
-            break;
-        case 0:
+            
+        }
+        else if (p1_temp->exp == p2_temp->exp){
+            
             addPolyNode(sum, p1_temp->exp, p1_temp->coef+p2_temp->coef);
             p1_temp = p1_temp->next;
             p2_temp = p2_temp->next;
-            break;
-        
-        default:
-            break;
-        }
+           
+        }  
     
     }
-
+    while (p1_temp!=NULL)
+    {
+        addPolyNode(sum, p1_temp->exp, p1_temp->coef);
+        p1_temp = p1_temp->next;
+    }
+    while (p2_temp!=NULL)
+    {
+        addPolyNode(sum, p2_temp->exp, p2_temp->coef);
+        p2_temp= p2_temp->next;
+    }
+    
     return *sum;
 }
 
