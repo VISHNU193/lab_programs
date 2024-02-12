@@ -1,35 +1,33 @@
 #include <stdio.h>
 #include <stdlib.h>
-struct node 					//Node Creation
+
+#define MAX 20
+struct node 				
 {
   	int vertex;
   	struct node* next;
 };
-
-struct node* createNode(int v);			//Create node Function declaration
-
-struct Graph 					//Graph structure
+struct Graph 					
 {
   	int totalVertices;
   	int* visited;
   	struct node** adjLists;
 };
 
-void DFS(struct Graph* graph, int vertex) 
-{
-  	struct node* adjList = graph->adjLists[vertex];
-  	struct node* temp = adjList;
-  	graph->visited[vertex] = 1;
-  	printf("%d -> ", vertex);
- 	 while (temp != NULL) {
-   		 int connectedVertex = temp->vertex;
-    		if (graph->visited[connectedVertex] == 0) {
-      			DFS(graph, connectedVertex);
-    	}
-    	temp = temp->next;
-  }
-}
+int queue[MAX];
+int front,rear;
+front = -1;
+rear=-1;
 
+void addq(int v){
+    rear=(rear+1)%MAX;
+    queue[rear]=v;
+}
+int deleteq()
+{
+    front=(front+1)%MAX;
+    return queue[front];
+}
 struct node* createNode(int v) 
 {
   struct node* newNode = malloc(sizeof(struct node));
@@ -71,23 +69,59 @@ void displayGraph(struct Graph* graph) {
   }
   printf("\n");
 }
+
+void DFS(struct Graph* graph, int vertex) 
+{
+    static int visited[MAX]={0};
+  	struct node* adjList = graph->adjLists[vertex];
+  	struct node* temp = adjList;
+  	visited[vertex] = 1;
+  	printf("%d -> ", vertex);
+ 	 while (temp != NULL) {
+   		 int connectedVertex = temp->vertex;
+    		if (visited[connectedVertex] == 0) {
+      			DFS(graph, connectedVertex);
+    	}
+    	temp = temp->next;
+  }
+}
+
+void BFS(struct Graph * graph,int vertex){
+    struct node * w;
+    printf("%d ->",vertex);
+    static int visited[MAX]={0};
+    visited[vertex]=1;
+    addq(vertex);
+    while(front!=rear){
+        vertex=deleteq();
+        for(w=graph->adjLists[vertex];w;w=w->next)
+            if(!visited[w->vertex]){
+                printf(" %d ->",w->vertex);
+                addq(w->vertex);
+                visited[w->vertex]=1;
+            }
+    }
+
+}
+
 int main() 
 {
   	struct Graph* graph = createGraph(8);
   	addEdge(graph, 1, 2);
-addEdge(graph, 1, 3);
-addEdge(graph, 2, 5);
+    addEdge(graph, 1, 3);
+    addEdge(graph, 2, 5);
   	addEdge(graph, 2, 4);
-addEdge(graph, 4, 8);
-addEdge(graph, 5, 8);
-  	addEdge(graph, 3,6 );
+    addEdge(graph, 4, 8);
+    addEdge(graph, 5, 8);
+  	addEdge(graph, 3, 6);
   	addEdge(graph, 3, 7);
-addEdge(graph, 6, 8);
-addEdge(graph, 7, 8);  
-printf("\nThe Adjacency List of the Graph is:");
+    addEdge(graph, 6, 8);
+    addEdge(graph, 7, 8);  
+    printf("\nThe Adjacency List of the Graph is:");
   	displayGraph(graph);
-printf("\nDFS traversal of the graph: \n");
-  	DFS(graph, 1);
-	bfs(graph,1);
+    printf("\nDFS traversal of the graph: ");
+  	DFS(graph,1);
+    printf("\nBFS traversal of graph is : ");    
+	BFS(graph,1);
   	return 0;
 }
